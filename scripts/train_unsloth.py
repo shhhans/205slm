@@ -12,14 +12,14 @@ Unsloth + SFTTrainer 微调脚本
   python scripts/train_unsloth.py
   python scripts/train_unsloth.py --model Qwen/Qwen3-0.6B --epochs 5
 """
-
+from unsloth import FastLanguageModel
 import argparse
 import json
 from pathlib import Path
 
 from datasets import Dataset
 from trl import SFTTrainer, SFTConfig
-from unsloth import FastLanguageModel
+
 
 # ── 参数 ──────────────────────────────────────────────────────────────────────
 
