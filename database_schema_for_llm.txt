@@ -1,0 +1,452 @@
+视图: v_cost_contract
+说明: VIEW
+数据量: 6808 行
+
+字段:
+  - cost_contract_id: INTEGER [可空]
+  - contract_no: VARCHAR(64) [可空]
+  - cost_contract_no: VARCHAR(128) [可空]
+  - project_contract_id: INTEGER [可空]
+  - project_name: VARCHAR(512) [可空]
+  - contract_price_yuan: DECIMAL(22, 2) [可空]
+  - tax_rate: INTEGER [可空]
+  - contract_type: VARCHAR(32) [可空]
+  - charge_person_id: INTEGER [可空]
+  - charge_person_name: VARCHAR(32) [可空]
+  - customer_id: INTEGER [可空]
+  - customer_name: VARCHAR(255) [可空]
+  - sales_company: VARCHAR(255) [可空]
+  - subcon_company_id: INTEGER [可空]
+  - subcon_company_name: VARCHAR(32) [可空]
+  - sign_time: TIMESTAMP [可空]
+  - contract_received: TINYINT [可空]
+  - is_deduction: TINYINT [可空]
+  - deduction_time: TIMESTAMP [可空]
+  - contract_status: VARCHAR(255) [可空]
+  - virtual_contract: TINYINT [可空]
+  - status: TINYINT [可空]
+  - finish_date: TIMESTAMP [可空]
+  - remark: VARCHAR(512) [可空]
+  - create_time: TIMESTAMP [可空]
+  - update_time: TIMESTAMP [可空]
+
+示例数据:
+  1. {'cost_contract_id': 3, 'contract_no': '20220055', 'cost_contract_no': '2022-建溧-55', 'project_contract_id': 8170, 'project_name': '中天钢铁集团（南通）有限公司中天绿色精品钢（通州湾海门港片区）项目钢渣二次处理之机、电安装工程', 'contract_price_yuan': 84890.44, 'tax_rate': 130, 'contract_type': None, 'charge_person_id': 88, 'charge_person_name': '蔡武军', 'customer_id': 104, 'customer_name': '于洋', 'sales_company': '南通怀森贸易有限公司', 'subcon_company_id': 4, 'subcon_company_name': '建溧', 'sign_time': '2022-06-14T08:00:00', 'contract_received': 1, 'is_deduction': None, 'deduction_time': None, 'contract_status': None, 'virtual_contract': 1, 'status': 0, 'finish_date': None, 'remark': None, 'create_time': '2022-06-14T10:10:21', 'update_time': '2022-06-14T10:10:21'}
+
+
+
+视图: v_customer
+说明: VIEW
+数据量: 1211 行
+
+字段:
+  - customer_id: INTEGER [可空]
+  - customer_name: VARCHAR(32) [可空]
+  - phone_number: VARCHAR(32) [可空]
+  - email: VARCHAR(32) [可空]
+  - customer_scale: VARCHAR(32) [可空]
+  - region: VARCHAR(32) [可空]
+  - customer_category: VARCHAR(32) [可空]
+  - owner_name: VARCHAR(32) [可空]
+  - owner_id: INTEGER [可空]
+  - big_customer: TINYINT [可空]
+  - remark: VARCHAR(512) [可空]
+  - create_time: TIMESTAMP [可空]
+  - update_time: TIMESTAMP [可空]
+
+示例数据:
+  1. {'customer_id': 1, 'customer_name': '米贞力', 'phone_number': None, 'email': None, 'customer_scale': None, 'region': None, 'customer_category': None, 'owner_name': '曾玉瑕', 'owner_id': 48, 'big_customer': 1, 'remark': None, 'create_time': '2022-03-02T18:31:53', 'update_time': '2022-03-02T18:31:53'}
+
+视图: v_party_company
+说明: VIEW
+数据量: 5294 行
+
+字段:
+  - party_company_id: INTEGER [可空]
+  - company_name: VARCHAR(255) [可空]
+  - address: VARCHAR(255) [可空]
+  - tax_number: VARCHAR(255) [可空]
+  - tel: VARCHAR(255) [可空]
+  - bank_account: VARCHAR(255) [可空]
+  - bank_name: VARCHAR(255) [可空]
+  - bank_line: VARCHAR(255) [可空]
+  - remark: VARCHAR(512) [可空]
+  - create_time: TIMESTAMP [可空]
+  - update_time: TIMESTAMP [可空]
+
+示例数据:
+  1. {'party_company_id': 2, 'company_name': '苏州宜科环保设备有限公司', 'address': None, 'tax_number': '123456', 'tel': None, 'bank_account': '123456', 'bank_name': '无', 'bank_line': None, 'remark': None, 'create_time': '2021-09-27T18:51:24', 'update_time': '2021-09-27T18:51:24'}
+
+
+视图: v_payment
+说明: VIEW
+数据量: 15513 行
+
+字段:
+  - payment_id: INTEGER [可空]
+  - project_contract_id: INTEGER [可空]
+  - cost_contract_id: INTEGER [可空]
+  - payment_invoice_id: INTEGER [可空]
+  - project_name: VARCHAR(512) [可空]
+  - project_contract_no: VARCHAR(64) [可空]
+  - charge_person_id: INTEGER [可空]
+  - charge_person_name: VARCHAR(32) [可空]
+  - customer_id: INTEGER [可空]
+  - customer_name: VARCHAR(512) [可空]
+  - party_company_id: INTEGER [可空]
+  - party_company_name: VARCHAR(32) [可空]
+  - subcon_company_id: INTEGER [可空]
+  - subcon_company_name: VARCHAR(32) [可空]
+  - sales_company: VARCHAR(1024) [可空]
+  - payment_time: TIMESTAMP [可空]
+  - payment_price_yuan: DECIMAL(22, 2) [可空]
+  - payment_form: VARCHAR(24) [可空]
+  - payment_account: VARCHAR(255) [可空]
+  - is_deduction: TINYINT [可空]
+  - deduction_time: TIMESTAMP [可空]
+  - remark: VARCHAR(512) [可空]
+  - create_time: TIMESTAMP [可空]
+  - update_time: TIMESTAMP [可空]
+
+示例数据:
+  1. {'payment_id': 1, 'project_contract_id': None, 'cost_contract_id': None, 'payment_invoice_id': None, 'project_name': None, 'project_contract_no': None, 'charge_person_id': 75, 'charge_person_name': '付侠', 'customer_id': 395, 'customer_name': '张万九', 'party_company_id': None, 'party_company_name': None, 'subcon_company_id': 7, 'subcon_company_name': '誉童', 'sales_company': '张掖市鑫瑞达物资有限责任公司', 'payment_time': '2022-10-11T00:00:00', 'payment_price_yuan': 99500.0, 'payment_form': '转账', 'payment_account': '一般户', 'is_deduction': None, 'deduction_time': None, 'remark': '', 'create_time': '2023-02-13T18:28:54', 'update_time': '2023-02-13T18:28:54'}
+
+
+视图: v_payment_invoice
+说明: VIEW
+数据量: 12497 行
+
+字段:
+  - payment_invoice_id: INTEGER [可空]
+  - project_contract_id: INTEGER [可空]
+  - cost_contract_id: INTEGER [可空]
+  - cost_contract_id_2: INTEGER [可空]
+  - project_name: VARCHAR(512) [可空]
+  - project_contract_no: VARCHAR(64) [可空]
+  - charge_person_id: INTEGER [可空]
+  - charge_person_name: VARCHAR(32) [可空]
+  - customer_id: INTEGER [可空]
+  - customer_name: VARCHAR(512) [可空]
+  - subcon_company_id: INTEGER [可空]
+  - subcon_company_name: VARCHAR(32) [可空]
+  - sales_company: VARCHAR(32) [可空]
+  - invoice_time: TIMESTAMP [可空]
+  - invoice_price_yuan: DECIMAL(22, 2) [可空]
+  - posting_price_yuan: DECIMAL(22, 2) [可空]
+  - posting_time: TIMESTAMP [可空]
+  - tax_rate: INTEGER [可空]
+  - tax_yuan: DECIMAL(22, 2) [可空]
+  - invoice_number: VARCHAR(64) [可空]
+  - invoice_type: VARCHAR(32) [可空]
+  - invoice_class: VARCHAR(255) [可空]
+  - invoice_received_time: TIMESTAMP [可空]
+  - invoice_received_person: VARCHAR(32) [可空]
+  - receipt_num: INTEGER [可空]
+  - is_permission: TINYINT [可空]
+  - is_deduction: TINYINT [可空]
+  - deduction_time: TIMESTAMP [可空]
+  - deduction_status: INTEGER [可空]
+  - sales_deduction_time: TIMESTAMP [可空]
+  - sales_settlement: TINYINT [可空]
+  - customer_settlement: TINYINT [可空]
+  - company_settlement: TINYINT [可空]
+  - is_special: TINYINT [可空]
+  - is_corporate: TINYINT [可空]
+  - flow_status: INTEGER [可空]
+  - remark: VARCHAR(512) [可空]
+  - create_time: TIMESTAMP [可空]
+  - update_time: TIMESTAMP [可空]
+
+示例数据:
+  1. {'payment_invoice_id': 1, 'project_contract_id': None, 'cost_contract_id': None, 'cost_contract_id_2': None, 'project_name': None, 'project_contract_no': None, 'charge_person_id': 88, 'charge_person_name': '蔡武军', 'customer_id': 11, 'customer_name': '李兴海', 'subcon_company_id': 7, 'subcon_company_name': '誉童', 'sales_company': '溧阳亚邦建材有限公司', 'invoice_time': '2022-08-10T00:00:00', 'invoice_price_yuan': 50477.25, 'posting_price_yuan': None, 'posting_time': None, 'tax_rate': 30, 'tax_yuan': 1470.21, 'invoice_number': '01294076', 'invoice_type': '专票', 'invoice_class': '非材料发票', 'invoice_received_time': None, 'invoice_received_person': None, 'receipt_num': None, 'is_permission': None, 'is_deduction': 1, 'deduction_time': None, 'deduction_status': 1, 'sales_deduction_time': None, 'sales_settlement': None, 'customer_settlement': None, 'company_settlement': None, 'is_special': 0, 'is_corporate': None, 'flow_status': None, 'remark': None, 'create_time': '2023-02-14T00:08:38', 'update_time': '2023-02-14T00:08:38'}
+
+
+视图: v_project_contract
+说明: VIEW
+数据量: 21498 行
+
+字段:
+  - project_contract_id: INTEGER [可空]
+  - contract_no: VARCHAR(64) [可空]
+  - project_name: VARCHAR(512) [可空]
+  - contract_price_yuan: DECIMAL(22, 2) [可空]
+  - tax_rate: INTEGER [可空]
+  - charge_person_id: INTEGER [可空]
+  - charge_person_name: VARCHAR(32) [可空]
+  - charge_person_type: VARCHAR(20) [可空]
+  - customer_id: INTEGER [可空]
+  - customer_name: VARCHAR(32) [可空]
+  - party_company_id: INTEGER [可空]
+  - party_company_name: VARCHAR(255) [可空]
+  - subcon_company_id: INTEGER [可空]
+  - subcon_company_name: VARCHAR(255) [可空]
+  - sign_time: TIMESTAMP [可空]
+  - contract_start_time: TIMESTAMP [可空]
+  - contract_end_time: TIMESTAMP [可空]
+  - project_start_time: TIMESTAMP [可空]
+  - project_end_time: TIMESTAMP [可空]
+  - contract_round_time: VARCHAR(128) [可空]
+  - project_address: VARCHAR(255) [可空]
+  - last_pay_price_yuan: DECIMAL(22, 2) [可空]
+  - is_permission: TINYINT [可空]
+  - permission_no: VARCHAR(64) [可空]
+  - permission_start_date: TIMESTAMP [可空]
+  - permission_end_date: TIMESTAMP [可空]
+  - permission_finish: TINYINT [可空]
+  - is_contract_original: TINYINT [可空]
+  - sales_no: VARCHAR(255) [可空]
+  - contract_status: VARCHAR(255) [可空]
+  - settlement_type: VARCHAR(32) [可空]
+  - finish_date: TIMESTAMP [可空]
+  - remark: VARCHAR(512) [可空]
+  - create_time: TIMESTAMP [可空]
+  - update_time: TIMESTAMP [可空]
+
+示例数据:
+  1. {'project_contract_id': 2, 'contract_no': None, 'project_name': '年产1200万重量箱超白光伏（折合5mm厚度，可见光透射率>90%）和超薄电子玻璃（1.3mm以下）生产线建设项目路灯、照明线路相关工程', 'contract_price_yuan': 988714.93, 'tax_rate': 90, 'charge_person_id': 48, 'charge_person_name': '曾玉瑕', 'charge_person_type': None, 'customer_id': 658, 'customer_name': '罗斌', 'party_company_id': 111, 'party_company_name': '中冶二十治集团有限公司', 'subcon_company_id': 5, 'subcon_company_name': '扬宇', 'sign_time': '2022-03-01T00:00:00', 'contract_start_time': None, 'contract_end_time': None, 'project_start_time': None, 'project_end_time': None, 'contract_round_time': None, 'project_address': None, 'last_pay_price_yuan': None, 'is_permission': 1, 'permission_no': None, 'permission_start_date': None, 'permission_end_date': None, 'permission_finish': 0, 'is_contract_original': 1, 'sales_no': '2022-zengyuxia-1', 'contract_status': 'UN_DONE', 'settlement_type': '固定总价', 'finish_date': None, 'remark': None, 'create_time': '2022-03-01T15:08:16', 'update_time': '2022-03-01T15:08:16'}
+
+
+视图: v_project_finance_summary
+说明: VIEW
+数据量: 21498 行
+
+字段:
+  - project_contract_id: INTEGER [可空]
+  - contract_no: VARCHAR(64) [可空]
+  - project_name: VARCHAR(512) [可空]
+  - contract_price_yuan: DECIMAL(22, 2) [可空]
+  - charge_person_name: VARCHAR(32) [可空]
+  - party_company_name: VARCHAR(255) [可空]
+  - subcon_company_name: VARCHAR(255) [可空]
+  - contract_status: VARCHAR(255) [可空]
+  - receipt_invoice_count: BIGINT [可空]
+  - receipt_invoice_total_yuan: DECIMAL(44, 2) [可空]
+  - payment_invoice_count: BIGINT [可空]
+  - payment_invoice_total_yuan: DECIMAL(44, 2) [可空]
+  - receive_count: BIGINT [可空]
+  - receive_total_yuan: DECIMAL(44, 2) [可空]
+  - payment_count: BIGINT [可空]
+  - payment_total_yuan: DECIMAL(44, 2) [可空]
+  - create_time: TIMESTAMP [可空]
+  - update_time: TIMESTAMP [可空]
+
+示例数据:
+  1. {'project_contract_id': 2, 'contract_no': None, 'project_name': '年产1200万重量箱超白光伏（折合5mm厚度，可见光透射率>90%）和超薄电子玻璃（1.3mm以下）生产线建设项目路灯、照明线路相关工程', 'contract_price_yuan': 988714.93, 'charge_person_name': '曾玉瑕', 'party_company_name': '中冶二十治集团有限公司', 'subcon_company_name': '扬宇', 'contract_status': 'UN_DONE', 'receipt_invoice_count': 5, 'receipt_invoice_total_yuan': 859436.0, 'payment_invoice_count': 0, 'payment_invoice_total_yuan': 0.0, 'receive_count': 0, 'receive_total_yuan': 0.0, 'payment_count': 0, 'payment_total_yuan': 0.0, 'create_time': '2022-03-01T15:08:16', 'update_time': '2022-03-01T15:08:16'}
+
+
+视图: v_receipt_invoice
+说明: VIEW
+数据量: 20690 行
+
+字段:
+  - receipt_invoice_id: INTEGER [可空]
+  - project_contract_id: INTEGER [可空]
+  - project_name: VARCHAR(512) [可空]
+  - project_contract_no: VARCHAR(64) [可空]
+  - charge_person_id: INTEGER [可空]
+  - charge_person_name: VARCHAR(32) [可空]
+  - customer_id: INTEGER [可空]
+  - customer_name: VARCHAR(512) [可空]
+  - party_company_id: INTEGER [可空]
+  - party_company_name: VARCHAR(255) [可空]
+  - subcon_company_id: INTEGER [可空]
+  - subcon_company_name: VARCHAR(128) [可空]
+  - invoice_time: TIMESTAMP [可空]
+  - invoice_price_yuan: DECIMAL(22, 2) [可空]
+  - tax_rate: INTEGER [可空]
+  - tax_yuan: DECIMAL(22, 2) [可空]
+  - turn_in_tax_rate: INTEGER [可空]
+  - turn_in_tax_yuan: DECIMAL(22, 2) [可空]
+  - child_tax_rate: INTEGER [可空]
+  - child_tax_yuan: DECIMAL(22, 2) [可空]
+  - external_tax_rate: INTEGER [可空]
+  - cut_tax_rate: INTEGER [可空]
+  - cut_tax_yuan: DECIMAL(22, 2) [可空]
+  - invoice_type: VARCHAR(32) [可空]
+  - invoice_class: VARCHAR(255) [可空]
+  - invoice_number: VARCHAR(255) [可空]
+  - invoice_name: VARCHAR(1024) [可空]
+  - project_address: VARCHAR(512) [可空]
+  - receipt_num: INTEGER [可空]
+  - is_permission: TINYINT [可空]
+  - settlement_condition: TINYINT [可空]
+  - customer_settlement: TINYINT [可空]
+  - sales_settlement: TINYINT [可空]
+  - company_settlement: TINYINT [可空]
+  - is_refund: TINYINT [可空]
+  - refund_date: TIMESTAMP [可空]
+  - is_deduction: TINYINT [可空]
+  - deduction_time: TIMESTAMP [可空]
+  - virtual_invoice: TINYINT [可空]
+  - lack_tax_bill: TINYINT [可空]
+  - tax_bill_status: VARCHAR(255) [可空]
+  - pay_price_yuan: DECIMAL(22, 2) [可空]
+  - withholding_yuan: DECIMAL(22, 2) [可空]
+  - withholding_status: TINYINT [可空]
+  - settlement_date: TIMESTAMP [可空]
+  - sales_settlement_date: TIMESTAMP [可空]
+  - company_settlement_date: TIMESTAMP [可空]
+  - remark: VARCHAR(512) [可空]
+  - settlement_remark: VARCHAR(1024) [可空]
+  - profit_remark: VARCHAR(512) [可空]
+  - tax_bill_remark: VARCHAR(512) [可空]
+  - sales_settlement_remark: VARCHAR(512) [可空]
+  - create_time: TIMESTAMP [可空]
+  - update_time: TIMESTAMP [可空]
+
+示例数据:
+  1. {'receipt_invoice_id': 6, 'project_contract_id': 8685, 'project_name': '莆田北岸两岸智能医疗产业园一期（B 地块）装饰装修工程标段二', 'project_contract_no': None, 'charge_person_id': 103, 'charge_person_name': '李春来', 'customer_id': 682, 'customer_name': '鄢华东', 'party_company_id': 3, 'party_company_name': '中冶天工集团有限公司', 'subcon_company_id': 7, 'subcon_company_name': '誉童', 'invoice_time': '2022-03-04T08:00:00', 'invoice_price_yuan': 260000.0, 'tax_rate': 90, 'tax_yuan': 21467.89, 'turn_in_tax_rate': 90, 'turn_in_tax_yuan': 0.0, 'child_tax_rate': 3, 'child_tax_yuan': 0.0, 'external_tax_rate': 105, 'cut_tax_rate': None, 'cut_tax_yuan': None, 'invoice_type': None, 'invoice_class': None, 'invoice_number': None, 'invoice_name': None, 'project_address': None, 'receipt_num': None, 'is_permission': 0, 'settlement_condition': None, 'customer_settlement': 1, 'sales_settlement': None, 'company_settlement': None, 'is_refund': None, 'refund_date': None, 'is_deduction': 1, 'deduction_time': '2024-10-24T14:40:20', 'virtual_invoice': None, 'lack_tax_bill': 0, 'tax_bill_status': None, 'pay_price_yuan': 100000.0, 'withholding_yuan': None, 'withholding_status': None, 'settlement_date': '2023-04-24T13:58:20', 'sales_settlement_date': None, 'company_settlement_date': None, 'remark': None, 'settlement_remark': None, 'profit_remark': None, 'tax_bill_remark': None, 'sales_settlement_remark': None, 'create_time': '2022-03-04T13:18:38', 'update_time': '2024-10-24T14:40:20'}
+
+
+视图: v_receive_payment
+说明: VIEW
+数据量: 3954 行
+
+字段:
+  - receive_payment_id: INTEGER [可空]
+  - project_contract_id: INTEGER [可空]
+  - receipt_invoice_id: INTEGER [可空]
+  - project_name: VARCHAR(512) [可空]
+  - project_contract_no: VARCHAR(64) [可空]
+  - charge_person_id: INTEGER [可空]
+  - charge_person_name: VARCHAR(32) [可空]
+  - customer_id: INTEGER [可空]
+  - customer_name: VARCHAR(32) [可空]
+  - party_company_id: INTEGER [可空]
+  - party_company_name: VARCHAR(255) [可空]
+  - subcon_company_id: INTEGER [可空]
+  - subcon_company_name: VARCHAR(32) [可空]
+  - receive_time: TIMESTAMP [可空]
+  - receive_price_yuan: DECIMAL(22, 2) [可空]
+  - tax_rate: INTEGER [可空]
+  - due_yuan: DECIMAL(22, 2) [可空]
+  - withholding_yuan: DECIMAL(22, 2) [可空]
+  - withholding_tax_rate: INTEGER [可空]
+  - receive_form: VARCHAR(24) [可空]
+  - post_situation: VARCHAR(512) [可空]
+  - remark: VARCHAR(512) [可空]
+  - create_time: TIMESTAMP [可空]
+  - update_time: TIMESTAMP [可空]
+
+示例数据:
+  1. {'receive_payment_id': 4, 'project_contract_id': 8685, 'receipt_invoice_id': None, 'project_name': '莆田北岸两岸智能医疗产业园一期（B 地块）装饰装修工程标段二', 'project_contract_no': None, 'charge_person_id': 103, 'charge_person_name': '李春来', 'customer_id': 682, 'customer_name': '鄢华东', 'party_company_id': 3, 'party_company_name': '中冶天工集团有限公司', 'subcon_company_id': 7, 'subcon_company_name': '誉童', 'receive_time': '2022-07-28T00:00:00', 'receive_price_yuan': 2000000.0, 'tax_rate': None, 'due_yuan': None, 'withholding_yuan': None, 'withholding_tax_rate': None, 'receive_form': '转账', 'post_situation': None, 'remark': None, 'create_time': '2022-07-30T12:48:06', 'update_time': '2022-07-30T12:48:06'}
+
+
+视图: v_refund
+说明: VIEW
+数据量: 117 行
+
+字段:
+  - refund_id: INTEGER [可空]
+  - refund_type: VARCHAR(255) [可空]
+  - business_id: INTEGER [可空]
+  - refund_time: TIMESTAMP [可空]
+  - refund_account: VARCHAR(255) [可空]
+  - refund_form: VARCHAR(255) [可空]
+  - refund_money_yuan: DECIMAL(22, 2) [可空]
+  - remark: VARCHAR(1024) [可空]
+  - create_time: TIMESTAMP [可空]
+  - update_time: TIMESTAMP [可空]
+
+示例数据:
+  1. {'refund_id': 1, 'refund_type': 'payment', 'business_id': 3023, 'refund_time': '2023-02-01T00:00:00', 'refund_account': '基本户', 'refund_form': '转账', 'refund_money_yuan': 59994.0, 'remark': None, 'create_time': '2023-02-15T09:00:22', 'update_time': '2023-02-15T09:00:22'}
+
+
+视图: v_refund_invoice
+说明: VIEW
+数据量: 366 行
+
+字段:
+  - refund_invoice_id: INTEGER [可空]
+  - project_contract_id: INTEGER [可空]
+  - cost_contract_id: INTEGER [可空]
+  - project_name: VARCHAR(512) [可空]
+  - charge_person_id: INTEGER [可空]
+  - charge_person_name: VARCHAR(512) [可空]
+  - customer_id: INTEGER [可空]
+  - customer_name: VARCHAR(512) [可空]
+  - party_company_id: INTEGER [可空]
+  - party_company_name: VARCHAR(512) [可空]
+  - subcon_company_id: INTEGER [可空]
+  - subcon_company_name: VARCHAR(512) [可空]
+  - refund_type: VARCHAR(32) [可空]
+  - invoice_time: TIMESTAMP [可空]
+  - invoice_price_yuan: DECIMAL(22, 2) [可空]
+  - refund_invoice_time: TIMESTAMP [可空]
+  - refund_price_yuan: DECIMAL(22, 2) [可空]
+  - refund_time: TIMESTAMP [可空]
+  - tax_rate: INTEGER [可空]
+  - tax_yuan: DECIMAL(22, 2) [可空]
+  - refund_tax_rate_yuan: DECIMAL(22, 2) [可空]
+  - refund_tax_yuan: DECIMAL(22, 2) [可空]
+  - settlement: TINYINT [可空]
+  - settlement_date: TIMESTAMP [可空]
+  - remark: VARCHAR(512) [可空]
+  - create_time: TIMESTAMP [可空]
+  - update_time: TIMESTAMP [可空]
+
+示例数据:
+  1. {'refund_invoice_id': 12, 'project_contract_id': 11864, 'cost_contract_id': None, 'project_name': '宝武线材成品库项目盘卷支撑梁补装及支撑梁橡胶垫补装', 'charge_person_id': 75, 'charge_person_name': '付侠', 'customer_id': 167, 'customer_name': '黄炳强', 'party_company_id': 3164, 'party_company_name': '东杰智能科技集团股份有限公司', 'subcon_company_id': 7, 'subcon_company_name': '誉童', 'refund_type': '退票', 'invoice_time': '2022-08-18T00:00:00', 'invoice_price_yuan': 72000.0, 'refund_invoice_time': '2022-09-13T00:00:00', 'refund_price_yuan': 72000.0, 'refund_time': '2022-10-20T00:00:00', 'tax_rate': 30, 'tax_yuan': None, 'refund_tax_rate_yuan': 0.41, 'refund_tax_yuan': 2952.0, 'settlement': 1, 'settlement_date': None, 'remark': None, 'create_time': '2022-09-13T14:46:37', 'update_time': '2022-09-13T14:46:37'}
+
+
+视图: v_salesman_summary
+说明: VIEW
+数据量: 23 行
+
+字段:
+  - user_id: INTEGER [可空]
+  - salesman_name: VARCHAR(64) [可空]
+  - employee_no: VARCHAR(32) [可空]
+  - project_count: BIGINT [可空]
+  - project_total_yuan: DECIMAL(44, 2) [可空]
+  - receipt_invoice_count: BIGINT [可空]
+  - receipt_invoice_total_yuan: DECIMAL(44, 2) [可空]
+  - receive_count: BIGINT [可空]
+  - receive_total_yuan: DECIMAL(44, 2) [可空]
+  - payment_count: BIGINT [可空]
+  - payment_total_yuan: DECIMAL(44, 2) [可空]
+
+示例数据:
+  1. {'user_id': 1, 'salesman_name': '管理员', 'employee_no': '111', 'project_count': 0, 'project_total_yuan': 0.0, 'receipt_invoice_count': 0, 'receipt_invoice_total_yuan': 0.0, 'receive_count': 0, 'receive_total_yuan': 0.0, 'payment_count': 0, 'payment_total_yuan': 0.0}
+
+视图: v_subcon_company
+说明: VIEW
+数据量: 19 行
+
+字段:
+  - subcon_company_id: INTEGER [可空]
+  - company_name: VARCHAR(32) [可空]
+  - address: VARCHAR(32) [可空]
+  - tax_number: VARCHAR(64) [可空]
+  - tel: VARCHAR(32) [可空]
+  - bank_account: VARCHAR(64) [可空]
+  - bank_name: VARCHAR(64) [可空]
+  - create_time: TIMESTAMP [可空]
+  - update_time: TIMESTAMP [可空]
+
+示例数据:
+  1. {'subcon_company_id': 3, 'company_name': '君阳', 'address': '大道', 'tax_number': '1888888888888889', 'tel': '13512345678', 'bank_account': '621700019395416', 'bank_name': '中国银行', 'create_time': '2021-08-19T10:09:48', 'update_time': '2021-08-19T10:09:48'}
+
+
+视图: v_user
+说明: VIEW
+数据量: 23 行
+
+字段:
+  - user_id: INTEGER [可空]
+  - user_name: VARCHAR(64) [可空]
+  - phone_number: CHAR(11) [可空]
+  - email: VARCHAR(64) [可空]
+  - employee_no: VARCHAR(32) [可空]
+  - account: VARCHAR(255) [可空]
+  - sex: TINYINT [可空]
+  - settlement_type: VARCHAR(255) [可空]
+  - project_contact: VARCHAR(255) [可空]
+  - project_contact_phone: VARCHAR(255) [可空]
+  - last_login_time: TIMESTAMP [可空]
+  - create_time: TIMESTAMP [可空]
+  - update_time: TIMESTAMP [可空]
+
+示例数据:
+  1. {'user_id': 1, 'user_name': '管理员', 'phone_number': '12345678910', 'email': 'test@test.cn11', 'employee_no': '111', 'account': 'admin', 'sex': 1, 'settlement_type': 'month_settlement', 'project_contact': None, 'project_contact_phone': None, 'last_login_time': '2026-03-11T14:00:16', 'create_time': '2020-07-10T18:52:22', 'update_time': '2026-03-11T14:00:16'}
+

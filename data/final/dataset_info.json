@@ -1,0 +1,11 @@
+{
+  "sql_finetune": {
+    "file_name": "train.jsonl",
+    "formatting": "alpaca",
+    "columns": {
+      "prompt": "instruction",
+      "query": "input",
+      "response": "output"
+    }
+  }
+}

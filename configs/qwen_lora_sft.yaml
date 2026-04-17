@@ -1,0 +1,55 @@
+### LLaMA-Factory LoRA SFT 配置
+### 适用模型：Qwen2.5-0.5B-Instruct / Qwen3-0.6B
+### 用法：llamafactory-cli train configs/qwen_lora_sft.yaml
+
+# ── 模型 ──────────────────────────────────────────────────────────────────────
+model_name_or_path: Qwen/Qwen2.5-0.5B-Instruct   # 或 Qwen/Qwen3-0.6B
+# 本地路径示例：
+# model_name_or_path: D:/Models/Qwen2.5-0.5B-Instruct
+
+# ── 训练方式 ──────────────────────────────────────────────────────────────────
+stage: sft
+do_train: true
+finetuning_type: lora
+
+# LoRA 参数
+lora_rank: 16
+lora_alpha: 32
+lora_dropout: 0.05
+lora_target: all   # 对所有线性层应用 LoRA
+
+# ── 数据集 ───────────────────────────────────────────────────────────────────
+dataset: sql_finetune
+dataset_dir: data/final
+template: qwen          # Qwen2.5 / Qwen3 通用模板
+cutoff_len: 2048        # 对应 0.5B 模型的上下文窗口
+max_samples: 10000      # 限制最大样本数（调试时可调小）
+overwrite_cache: true
+preprocessing_num_workers: 4
+
+# ── 输出 ──────────────────────────────────────────────────────────────────────
+output_dir: output/qwen-sql-lora
+logging_dir: output/qwen-sql-lora/logs
+overwrite_output_dir: true
+
+# ── 训练超参数 ────────────────────────────────────────────────────────────────
+per_device_train_batch_size: 4
+gradient_accumulation_steps: 4       # 等效 batch_size = 16
+learning_rate: 2.0e-4
+num_train_epochs: 5
+lr_scheduler_type: cosine
+warmup_ratio: 0.05
+weight_decay: 0.01
+
+# ── 保存与日志 ────────────────────────────────────────────────────────────────
+save_strategy: epoch
+logging_steps: 10
+save_total_limit: 3
+load_best_model_at_end: false         # SFT 阶段通常不做 eval
+
+# ── 精度 ──────────────────────────────────────────────────────────────────────
+bf16: true    # A100/H100/3090 支持 bf16；若不支持改为 fp16: true
+
+# ── 其他 ──────────────────────────────────────────────────────────────────────
+report_to: none    # 不上传到 wandb；如需监控改为 wandb
+seed: 42
