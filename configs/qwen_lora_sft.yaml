@@ -1,4 +1,4 @@
-### LLaMA-Factory LoRA SFT 配置
+### [已归档] LLaMA-Factory LoRA SFT 配置（主训练脚本已切换为 scripts/train_unsloth.py）
 ### 适用模型：Qwen2.5-0.5B-Instruct / Qwen3-0.6B
 ### 用法：llamafactory-cli train configs/qwen_lora_sft.yaml
 
