@@ -1,4 +1,4 @@
-### [已归档] LLaMA-Factory LoRA SFT 配置（主训练脚本已切换为 scripts/train_unsloth.py）
+### LLaMA-Factory LoRA SFT 配置
 ### 适用模型：Qwen2.5-0.5B-Instruct / Qwen3-0.6B
 ### 用法：llamafactory-cli train configs/qwen_lora_sft.yaml
 
@@ -38,18 +38,19 @@ gradient_accumulation_steps: 4       # 等效 batch_size = 16
 learning_rate: 2.0e-4
 num_train_epochs: 5
 lr_scheduler_type: cosine
-warmup_ratio: 0.05
+warmup_steps: 50              # warmup_ratio 已废弃，改用 warmup_steps
 weight_decay: 0.01
 
 # ── 保存与日志 ────────────────────────────────────────────────────────────────
 save_strategy: epoch
 logging_steps: 10
 save_total_limit: 3
-load_best_model_at_end: false         # SFT 阶段通常不做 eval
+load_best_model_at_end: false
 
-# ── 精度 ──────────────────────────────────────────────────────────────────────
-bf16: true    # A100/H100/3090 支持 bf16；若不支持改为 fp16: true
+# ── 精度（GPU 类型选一个）────────────────────────────────────────────────────
+bf16: true    # A100 / H100 / RTX 3090/4090 用这个
+# fp16: true  # 旧款 V100 / T4 改用这个，同时把上面 bf16 注释掉
 
 # ── 其他 ──────────────────────────────────────────────────────────────────────
-report_to: none    # 不上传到 wandb；如需监控改为 wandb
+report_to: none
 seed: 42
