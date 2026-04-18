@@ -1,0 +1,27 @@
+# ── 第一步：根据 CUDA 版本单独安装 torch（见下方注释）─────────────────────────
+# CUDA 11.8：pip install torch==2.5.1 --index-url https://download.pytorch.org/whl/cu118
+# CUDA 12.1：pip install torch==2.5.1 --index-url https://download.pytorch.org/whl/cu121
+# CUDA 12.4：pip install torch==2.5.1 --index-url https://download.pytorch.org/whl/cu124
+#
+# ── 第二步：pip install -r requirements.txt ────────────────────────────────────
+# Python >= 3.10 推荐
+
+# LLaMA-Factory（含所有子依赖）
+llamafactory @ git+https://github.com/hiyouga/LLaMA-Factory.git
+
+# 核心依赖（llamafactory 会自动拉取，显式列出以锁定版本）
+transformers>=4.51.0        # Qwen3 支持需要 4.51+；仅用 Qwen2.5 可降至 4.45.0
+datasets>=2.16.0
+accelerate>=0.34.0
+peft>=0.12.0
+trl>=0.9.6
+tokenizers>=0.19.0
+sentencepiece
+
+# 量化（QLoRA / 4-bit）
+bitsandbytes>=0.43.1
+
+# 工具
+scipy
+numpy<2.0                   # bitsandbytes 与 numpy 2.x 存在兼容问题
+packaging
