@@ -165,19 +165,28 @@ def validate_schema(sql: str, db_cols: dict) -> tuple[bool, str | None]:
 # ── 模型推理 ──────────────────────────────────────────────────────────────────
 
 def load_model(base_model: str, adapter_path: str, device: str):
-    # Tokenizer 优先从 adapter 路径加载（LLaMA-Factory 会保存一份），找不到则用 base
-    try:
-        tokenizer = AutoTokenizer.from_pretrained(adapter_path, trust_remote_code=True)
-    except Exception:
+    if adapter_path:
+        # 微调模型：base + LoRA adapter
+        try:
+            tokenizer = AutoTokenizer.from_pretrained(adapter_path, trust_remote_code=True)
+        except Exception:
+            tokenizer = AutoTokenizer.from_pretrained(base_model, trust_remote_code=True)
+        model = AutoModelForCausalLM.from_pretrained(
+            base_model,
+            torch_dtype=torch.bfloat16,
+            device_map=device,
+            trust_remote_code=True,
+        )
+        model = PeftModel.from_pretrained(model, adapter_path)
+    else:
+        # 基础模型：直接加载，不挂 LoRA
         tokenizer = AutoTokenizer.from_pretrained(base_model, trust_remote_code=True)
-
-    model = AutoModelForCausalLM.from_pretrained(
-        base_model,
-        torch_dtype=torch.bfloat16,
-        device_map=device,
-        trust_remote_code=True,
-    )
-    model = PeftModel.from_pretrained(model, adapter_path)
+        model = AutoModelForCausalLM.from_pretrained(
+            base_model,
+            torch_dtype=torch.bfloat16,
+            device_map=device,
+            trust_remote_code=True,
+        )
     model.eval()
     return model, tokenizer
 
@@ -238,8 +247,8 @@ def print_report(results: list[dict]):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--base-model", default="Qwen/Qwen2.5-Coder-0.5B-Instruct")
-    parser.add_argument("--adapter",    default="output/qwen-sql-lora",
-                        help="LoRA adapter 路径（含 adapter_config.json）")
+    parser.add_argument("--adapter",    default="",
+                        help="LoRA adapter 路径；留空则直接评估基础模型")
     parser.add_argument("--spider-dir", default="data/external/spider")
     parser.add_argument("--limit",      type=int, default=0,
                         help="评估样本数上限，0 = 全量 (~1034 条)")
@@ -277,7 +286,8 @@ def main():
         dev_data = dev_data[:args.limit]
     print(f"评估样本数：{len(dev_data)}")
 
-    print("加载模型...")
+    mode = "基础模型" if not args.adapter else f"微调模型（{args.adapter}）"
+    print(f"加载模型：{mode}...")
     model, tokenizer = load_model(args.base_model, args.adapter, args.device)
 
     Path(args.output).parent.mkdir(parents=True, exist_ok=True)
