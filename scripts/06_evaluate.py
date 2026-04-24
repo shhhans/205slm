@@ -102,7 +102,9 @@ def validate_syntax(sql: str) -> tuple[bool, str | None]:
     try:
         sqlglot.parse_one(sql, dialect="mysql")
         return True, None
-    except sqlglot.errors.ParseError as e:
+    except (sqlglot.errors.ParseError, sqlglot.errors.TokenError) as e:
+        return False, str(e)
+    except Exception as e:
         return False, str(e)
 
 
@@ -234,28 +236,23 @@ def execute_accuracy(pred_sql: str, gold_sql: str, db_path: Path) -> tuple[bool,
 # ── 模型推理 ──────────────────────────────────────────────────────────────────
 
 def load_model(base_model: str, adapter_path: str, device: str):
+    _tok_kwargs  = dict(trust_remote_code=True, local_files_only=True)
+    _model_kwargs = dict(torch_dtype=torch.bfloat16, device_map=device,
+                         trust_remote_code=True, local_files_only=True)
+
     if adapter_path:
         # 微调模型：base + LoRA adapter
         try:
-            tokenizer = AutoTokenizer.from_pretrained(adapter_path, trust_remote_code=True)
+            tokenizer = AutoTokenizer.from_pretrained(adapter_path, **_tok_kwargs)
         except Exception:
-            tokenizer = AutoTokenizer.from_pretrained(base_model, trust_remote_code=True)
-        model = AutoModelForCausalLM.from_pretrained(
-            base_model,
-            torch_dtype=torch.bfloat16,
-            device_map=device,
-            trust_remote_code=True,
-        )
+            tokenizer = AutoTokenizer.from_pretrained(base_model, **_tok_kwargs)
+        model = AutoModelForCausalLM.from_pretrained(base_model, **_model_kwargs)
         model = PeftModel.from_pretrained(model, adapter_path)
     else:
         # 基础模型：直接加载，不挂 LoRA
-        tokenizer = AutoTokenizer.from_pretrained(base_model, trust_remote_code=True)
-        model = AutoModelForCausalLM.from_pretrained(
-            base_model,
-            torch_dtype=torch.bfloat16,
-            device_map=device,
-            trust_remote_code=True,
-        )
+        tokenizer = AutoTokenizer.from_pretrained(base_model, **_tok_kwargs)
+        model = AutoModelForCausalLM.from_pretrained(base_model, **_model_kwargs)
+
     model.eval()
     return model, tokenizer
 
@@ -294,6 +291,9 @@ def print_report(results: list[dict]):
 
     print("\n── 评估结果 ────────────────────────────────────────")
     print(f"  总样本数        {total}")
+    if total == 0:
+        print("  （无结果）")
+        return
     print(f"  Syntax Valid    {syntax_pass}/{total}  ({syntax_pass/total*100:.1f}%)")
     print(f"  Schema Valid    {schema_pass}/{total}  ({schema_pass/total*100:.1f}%)")
     if exec_total:
@@ -382,6 +382,12 @@ def main():
         with open(args.pred_file, encoding="utf-8") as f:
             records = [json.loads(l) for l in f if l.strip()]
         results = run_validation(records)
+        out_path = Path(args.output)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(out_path, "w", encoding="utf-8") as out_f:
+            for r in results:
+                out_f.write(json.dumps(r, ensure_ascii=False) + "\n")
+        print(f"验证结果已保存至：{out_path}")
         print_report(results)
         return
 
@@ -409,11 +415,15 @@ def main():
             raw_output = generate_sql(model, tokenizer, schema, question)
             pred_sql   = extract_sql(raw_output)
 
-            raw_records.append({
+            record = {
                 "db_id": db_id, "question": question,
                 "gold_sql": gold_sql, "pred_sql": pred_sql,
-            })
+            }
+            raw_records.append(record)
+            out_f.write(json.dumps(record, ensure_ascii=False) + "\n")
+            out_f.flush()
 
+    print(f"推理完成，原始结果已保存至：{args.output}")
     print("验证中（语法 + Schema + 执行）...")
     results = run_validation(raw_records)
 
