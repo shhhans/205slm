@@ -1,22 +1,25 @@
 """
 SQL 评估脚本
 ──────────────
-在 Spider dev 集上测量微调模型的 Valid SQL Rate。
+在 Spider dev 集上测量微调模型的 Valid SQL Rate 和执行准确率（EX）。
 
-两层验证：
-  Layer 1 - Syntax ：sqlglot 语法解析
-  Layer 2 - Schema  ：表名 + 字段名对照 Spider tables.json 验证
-                      子查询递归独立验证；相关子查询引用外层别名时宽松跳过
+三层验证：
+  Layer 1 - Syntax   ：sqlglot 语法解析
+  Layer 2 - Schema   ：表名 + 字段名对照 Spider tables.json 验证
+  Layer 3 - Execute  ：对照 Spider SQLite 数据库执行，结果集与金标准对比
 
 用法：
-  # 完整评估（推理 + 验证）
+  # 完整评估（推理 + 三层验证）
   python scripts/06_evaluate.py --adapter output/qwen-sql-lora
 
-  # 只跑前 100 条快速验证
+  # 只跑前 100 条
   python scripts/06_evaluate.py --adapter output/qwen-sql-lora --limit 100
 
-  # 跳过推理，直接对已有结果文件重新验证
+  # 跳过推理，对已有结果重新验证（含执行准确率）
   python scripts/06_evaluate.py --pred-file output/eval_results.jsonl
+
+  # 跳过执行准确率（无 SQLite 数据库时）
+  python scripts/06_evaluate.py --adapter output/qwen-sql-lora --skip-exec
 
 依赖：
   pip install sqlglot peft transformers tqdm
@@ -25,6 +28,8 @@ SQL 评估脚本
 import argparse
 import json
 import re
+import sqlite3
+import signal
 from collections import defaultdict
 from pathlib import Path
 
@@ -162,6 +167,70 @@ def validate_schema(sql: str, db_cols: dict) -> tuple[bool, str | None]:
     return True, None
 
 
+# ── 执行准确率（Layer 3）─────────────────────────────────────────────────────
+
+def _normalize_result(rows) -> frozenset:
+    """将查询结果集标准化为无序集合，便于比较"""
+    normalized = set()
+    for row in rows:
+        cells = []
+        for v in row:
+            if v is None:
+                cells.append("")
+            elif isinstance(v, float):
+                cells.append(str(int(v)) if v == int(v) else str(round(v, 4)))
+            else:
+                cells.append(str(v).strip())
+        normalized.add(tuple(cells))
+    return frozenset(normalized)
+
+
+def _transpile_to_sqlite(sql: str) -> str:
+    """将 MySQL SQL 转换为 SQLite 兼容语法"""
+    try:
+        return sqlglot.transpile(sql, read="mysql", write="sqlite")[0]
+    except Exception:
+        return sql
+
+
+def execute_accuracy(pred_sql: str, gold_sql: str, db_path: Path) -> tuple[bool, str | None]:
+    """
+    Layer 3：在 Spider SQLite 数据库上执行两条 SQL，对比结果集。
+    返回 (is_correct, error_message)
+    """
+    if not db_path.exists():
+        return False, f"数据库文件不存在: {db_path}"
+
+    pred_sqlite = _transpile_to_sqlite(pred_sql)
+    gold_sqlite = _transpile_to_sqlite(gold_sql)
+
+    try:
+        conn = sqlite3.connect(str(db_path))
+        conn.text_factory = str
+        conn.set_progress_handler(lambda: None, 1000000)  # 防止超长查询
+        cursor = conn.cursor()
+
+        try:
+            cursor.execute(pred_sqlite)
+            pred_rows = cursor.fetchall()
+        except Exception as e:
+            conn.close()
+            return False, f"预测SQL执行失败: {e}"
+
+        try:
+            cursor.execute(gold_sqlite)
+            gold_rows = cursor.fetchall()
+        except Exception as e:
+            conn.close()
+            return False, f"金标准SQL执行失败: {e}"
+
+        conn.close()
+        return _normalize_result(pred_rows) == _normalize_result(gold_rows), None
+
+    except Exception as e:
+        return False, str(e)
+
+
 # ── 模型推理 ──────────────────────────────────────────────────────────────────
 
 def load_model(base_model: str, adapter_path: str, device: str):
@@ -217,15 +286,22 @@ def print_report(results: list[dict]):
     total = len(results)
     syntax_pass = sum(1 for r in results if r["syntax_valid"])
     schema_pass = sum(1 for r in results if r["schema_valid"])
+    exec_total  = [r for r in results if r.get("exec_correct") is not None]
+    exec_pass   = sum(1 for r in exec_total if r["exec_correct"])
     syn_errors  = [r for r in results if not r["syntax_valid"]]
     sch_errors  = [r for r in results if r["syntax_valid"] and not r["schema_valid"]]
+    exec_errors = [r for r in exec_total if not r["exec_correct"]]
 
     print("\n── 评估结果 ────────────────────────────────────────")
     print(f"  总样本数        {total}")
     print(f"  Syntax Valid    {syntax_pass}/{total}  ({syntax_pass/total*100:.1f}%)")
     print(f"  Schema Valid    {schema_pass}/{total}  ({schema_pass/total*100:.1f}%)")
+    if exec_total:
+        print(f"  Exec Accuracy   {exec_pass}/{len(exec_total)}  ({exec_pass/len(exec_total)*100:.1f}%)")
     print(f"\n  语法错误样本    {len(syn_errors)}")
     print(f"  字段错误样本    {len(sch_errors)}")
+    if exec_total:
+        print(f"  执行错误样本    {len(exec_errors)}")
 
     if syn_errors:
         print("\n── 语法错误示例（前3条）──────────────────────────")
@@ -241,6 +317,14 @@ def print_report(results: list[dict]):
             print(f"  P: {r['pred_sql'][:100]}")
             print(f"  E: {r['schema_error']}\n")
 
+    if exec_errors:
+        print("── 执行错误示例（前3条）──────────────────────────")
+        for r in exec_errors[:3]:
+            print(f"  Q: {r['question'][:60]}")
+            print(f"  G: {r['gold_sql'][:100]}")
+            print(f"  P: {r['pred_sql'][:100]}")
+            print(f"  E: {r.get('exec_error', '')}\n")
+
 
 # ── 主流程 ────────────────────────────────────────────────────────────────────
 
@@ -254,28 +338,50 @@ def main():
                         help="评估样本数上限，0 = 全量 (~1034 条)")
     parser.add_argument("--output",     default="output/eval_results.jsonl")
     parser.add_argument("--device",     default="cuda")
-    parser.add_argument("--pred-file",  default="",
+    parser.add_argument("--pred-file",   default="",
                         help="已有推理结果文件路径；设置此项则跳过推理，仅重新验证")
+    parser.add_argument("--spider-db-dir", default="",
+                        help="Spider SQLite 数据库目录，默认为 {spider-dir}/database")
+    parser.add_argument("--skip-exec",  action="store_true",
+                        help="跳过执行准确率评估")
     args = parser.parse_args()
 
     spider_dir = Path(args.spider_dir)
+    db_base    = Path(args.spider_db_dir) if args.spider_db_dir else spider_dir / "database"
+
     print("加载 Spider schema...")
     schema_text, schema_cols = build_spider_schemas(spider_dir / "tables.json")
+
+    def run_validation(records):
+        results = []
+        for r in tqdm(records, desc="验证中"):
+            db_id    = r["db_id"]
+            pred_sql = r["pred_sql"]
+            db_cols  = schema_cols.get(db_id, {})
+
+            syn_ok, syn_err = validate_syntax(pred_sql)
+            sch_ok, sch_err = (False, "syntax failed") if not syn_ok \
+                              else validate_schema(pred_sql, db_cols)
+
+            exec_correct = exec_err = None
+            if not args.skip_exec:
+                db_path = db_base / db_id / f"{db_id}.sqlite"
+                exec_correct, exec_err = execute_accuracy(pred_sql, r["gold_sql"], db_path)
+
+            results.append({
+                **r,
+                "syntax_valid": syn_ok, "syntax_error": syn_err,
+                "schema_valid": sch_ok, "schema_error": sch_err,
+                "exec_correct": exec_correct, "exec_error": exec_err,
+            })
+        return results
 
     # ── 模式 A：跳过推理，直接验证已有结果 ──────────────────────────────────
     if args.pred_file:
         print(f"从 {args.pred_file} 加载已有预测结果，重新验证...")
         with open(args.pred_file, encoding="utf-8") as f:
             records = [json.loads(l) for l in f if l.strip()]
-
-        results = []
-        for r in tqdm(records, desc="验证中"):
-            db_cols = schema_cols.get(r["db_id"], {})
-            syn_ok, syn_err = validate_syntax(r["pred_sql"])
-            sch_ok, sch_err = (False, "syntax failed") if not syn_ok else validate_schema(r["pred_sql"], db_cols)
-            results.append({**r, "syntax_valid": syn_ok, "schema_valid": sch_ok,
-                             "syntax_error": syn_err, "schema_error": sch_err})
-
+        results = run_validation(records)
         print_report(results)
         return
 
@@ -291,30 +397,29 @@ def main():
     model, tokenizer = load_model(args.base_model, args.adapter, args.device)
 
     Path(args.output).parent.mkdir(parents=True, exist_ok=True)
-    results = []
+    raw_records = []
 
     with open(args.output, "w", encoding="utf-8") as out_f:
-        for item in tqdm(dev_data, desc="推理+验证"):
+        for item in tqdm(dev_data, desc="推理中"):
             db_id    = item["db_id"]
             question = item["question"]
             gold_sql = item["query"]
             schema   = schema_text.get(db_id, f"数据库: {db_id}")
-            db_cols  = schema_cols.get(db_id, {})
 
             raw_output = generate_sql(model, tokenizer, schema, question)
             pred_sql   = extract_sql(raw_output)
 
-            syn_ok, syn_err = validate_syntax(pred_sql)
-            sch_ok, sch_err = (False, "syntax failed") if not syn_ok else validate_schema(pred_sql, db_cols)
-
-            record = {
+            raw_records.append({
                 "db_id": db_id, "question": question,
                 "gold_sql": gold_sql, "pred_sql": pred_sql,
-                "syntax_valid": syn_ok, "schema_valid": sch_ok,
-                "syntax_error": syn_err, "schema_error": sch_err,
-            }
-            results.append(record)
-            out_f.write(json.dumps(record, ensure_ascii=False) + "\n")
+            })
+
+    print("验证中（语法 + Schema + 执行）...")
+    results = run_validation(raw_records)
+
+    with open(args.output, "w", encoding="utf-8") as out_f:
+        for r in results:
+            out_f.write(json.dumps(r, ensure_ascii=False) + "\n")
 
     print(f"\n详细结果已保存至：{args.output}")
     print_report(results)
